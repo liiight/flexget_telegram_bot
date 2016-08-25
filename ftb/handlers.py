@@ -4,7 +4,7 @@ from requests.exceptions import HTTPError
 from telegram.ext.commandhandler import CommandHandler
 
 from ftb.bot import get_config
-from ftb.endpoints.movie_list import main_conversation
+from ftb.endpoints.movie_list import movie_list_handler
 from ftb.api import FlexgetRequest, get_token
 
 logger = logging.getLogger(__name__)
@@ -63,4 +63,4 @@ def register_handlers(handlers, error_handler=None, help_message=None):
 # TODO dynamically register handlers via hooks
 HANDLERS.append(help_handler)
 HANDLERS.append(start_handler)
-register_handlers([main_conversation], help_message='/movieList - Manage movie list')
+register_handlers([movie_list_handler], help_message='/movieList - Manage movie list')

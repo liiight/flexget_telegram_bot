@@ -132,15 +132,6 @@ def cancel(bot, update):
     return ConversationHandler.END
 
 
-def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
-
-
-def help(bot, update):
-    bot.sendMessage(update.message.chat_id,
-                    text='Send /movieList to start')
-
-
 help_handler = CommandHandler('help', help)
 
 show_movies_cnv_handler = RegexHandler('\w', show_movies)
@@ -155,7 +146,7 @@ add_movie_cnv_handler = ConversationHandler(
     fallbacks=[CommandHandler('cancel', cancel)]
 )
 
-main_conversation = ConversationHandler(
+movie_list_handler = ConversationHandler(
     entry_points=[CommandHandler('movieList', main_menu)],
     states={
         ACTION_SELECTOR: [MessageHandler([Filters.text], action_selection)],
