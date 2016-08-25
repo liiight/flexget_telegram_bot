@@ -22,14 +22,16 @@ class FlexgetBot(object):
     def load_config(self):
         config_file = os.path.join(os.getcwd(), self.config_file)
         with io.open(config_file) as file:
-            self.config = yaml.load(file)
-        self.validate_config()
+            config = yaml.load(file)
+        self.validate_config(config)
+        return config
 
-    def validate_config(self):
-        if not self.config.get('base_url'):
-            raise MissingData('Missing base_url value')
-        if not self.config.get('token') or not self.config.get('username') and self.config.get('password'):
-            raise MissingData('Missing credentials')
+    @staticmethod
+    def validate_config(config):
+        if not config.get('base_url'):
+            raise MissingData('Missing base_url value in config file')
+        if not (config.get('username') and config.get('password')) and not config.get('token'):
+            raise MissingData('Missing credentials in config file')
 
     def init_bot(self):
         from ftb.handlers import HANDLERS, error

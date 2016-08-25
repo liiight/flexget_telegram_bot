@@ -37,7 +37,7 @@ class FlexgetRequest(object):
         login_url = base_url + '/auth/login/?remember=true'
         data = {'username': username, 'password': password}
         session = requests.session()
-        response = session.get(login_url, json=data)
+        response = session.post(login_url, json=data)
         response.raise_for_status()
 
         token_url = base_url + '/user/token/'
