@@ -1,13 +1,10 @@
 import requests
+from ftb.bot import config
 
 
 class FlexgetRequest(object):
-    FLEXGET_BASE_URL = 'http://liiight.dlinkddns.com:7171/api/'
-    FLEXGET_TOKEN = 'fed21b92a06a69b15fab1b534a94e8c638f010f5da3f4232c0fa4f20'
-
-    def __init__(self, token, base_url):
-        self.flexget_token = token
-        self.base_url = base_url
+    FLEXGET_BASE_URL = config.get('base_url')
+    FLEXGET_TOKEN = config.get('token') or get_token(FLEXGET_BASE_URL, config.get('username'), config.get('password'))
 
     def _request(self, method, endpoint, **params):
         url = FlexgetRequest.FLEXGET_BASE_URL + endpoint
@@ -32,21 +29,20 @@ class FlexgetRequest(object):
     def delete(self, endpoint, **params):
         return self._request('delete', endpoint, **params)
 
-    @staticmethod
-    def get_token(base_url, username, password):
-        login_url = base_url + '/auth/login/?remember=true'
-        data = {'username': username, 'password': password}
-        session = requests.session()
-        response = session.post(login_url, json=data)
-        response.raise_for_status()
-
-        token_url = base_url + '/user/token/'
-        token = session.get(token_url)
-        token.raise_for_status()
-        return token.json().get('token')
-
     @classmethod
     def verify_connection(cls, token, base_url):
-        api = cls(token, base_url)
-        response = api.get('/server/version/')
+        response = cls().get('/server/version/')
         return response.get('flexget_version') is not None
+
+
+def get_token(base_url, username, password):
+    login_url = base_url + '/auth/login/?remember=true'
+    data = {'username': username, 'password': password}
+    session = requests.session()
+    response = session.post(login_url, json=data)
+    response.raise_for_status()
+
+    token_url = base_url + '/user/token/'
+    token = session.get(token_url)
+    token.raise_for_status()
+    return token.json().get('token')

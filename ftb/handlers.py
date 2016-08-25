@@ -3,7 +3,7 @@ import logging
 from requests.exceptions import HTTPError
 from telegram.ext.commandhandler import CommandHandler
 from ftb.endpoints.movie_list import main_conversation
-from ftb.api import FlexgetRequest
+from ftb.api import FlexgetRequest, get_token
 
 logger = logging.getLogger(__name__)
 
@@ -23,12 +23,14 @@ def start(bot, update):
         if token:
             valid = FlexgetRequest.verify_connection(token, base_url)
         else:
-            token = FlexgetRequest.get_token(base_url, username, password)
+            token = get_token(base_url, username, password)
             valid = token is not None
     except HTTPError:
         valid = False
     if not valid:
         message += 'Could not verify credentials. Please check config file'
+    else:
+        message += 'Press /help to see available actions'
     bot.sendMessage(update.message.chat_id, text=message)
 
 
