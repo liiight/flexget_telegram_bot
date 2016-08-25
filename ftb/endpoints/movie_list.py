@@ -18,12 +18,14 @@ ACTION_SELECTOR, LIST_MOVIES, ADD_MOVIES, SELECT_LIST, SHOW_MOVIES, MOVIE_NAME, 
 MOVIE_LISTS = [{}]
 MOVIE_ADD_DICT = {}
 
+request = FlexgetRequest()
+
 
 ############
 
 
 def get_movie_lists():
-    lists = FlexgetRequest().get('/movie_list/')
+    lists = request.get('/movie_list/')
     global MOVIE_LISTS
     MOVIE_LISTS = lists['movie_lists']
 
@@ -36,14 +38,14 @@ def get_movies_by_list_name(list_name):
             break
     if not list_id:
         raise Exception
-    movies = FlexgetRequest().get('/movie_list/' + str(list_id) + '/movies/')
+    movies = request.get('/movie_list/' + str(list_id) + '/movies/')
     return movies['movies']
 
 
 def add_movie_to_list():
     global MOVIE_ADD_DICT
     list_id = MOVIE_ADD_DICT.pop('list_id')
-    FlexgetRequest().post('/movie_list/' + str(list_id) + '/movies/', data=MOVIE_ADD_DICT)
+    request.post('/movie_list/' + str(list_id) + '/movies/', data=MOVIE_ADD_DICT)
 
 
 ##################################
