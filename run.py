@@ -1,8 +1,6 @@
 from argparse import ArgumentParser
 
-from telegram.error import Unauthorized, InvalidToken
-
-from ftb.bot import FlexgetBot, MissingData
+from ftb.bot import FlexgetBot
 
 parser = ArgumentParser(description='Initiate flexget telegram bot')
 parser.add_argument('-t', '--token', required=True, help='Telegram bot token')

@@ -43,3 +43,7 @@ class FlexgetBot(object):
         dispatcher.add_error_handler(error)
         updater.start_polling()
         updater.idle()
+
+
+def get_config():
+    return config

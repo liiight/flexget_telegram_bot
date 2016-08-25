@@ -1,8 +1,9 @@
 import requests
-from ftb.bot import config
+from ftb.bot import get_config
 
 
 class FlexgetRequest(object):
+    config = get_config()
     FLEXGET_BASE_URL = config.get('base_url')
     FLEXGET_TOKEN = config.get('token') or get_token(FLEXGET_BASE_URL, config.get('username'), config.get('password'))
 

@@ -2,6 +2,8 @@ import logging
 
 from requests.exceptions import HTTPError
 from telegram.ext.commandhandler import CommandHandler
+
+from ftb.bot import get_config
 from ftb.endpoints.movie_list import main_conversation
 from ftb.api import FlexgetRequest, get_token
 
@@ -13,7 +15,7 @@ HELP_MESSAGE = ''
 
 
 def start(bot, update):
-    from ftb.bot import config
+    config = get_config()
     message = 'Welcome to Flexget Telegram Bot!\n'
     token = config.get('token')
     username = config.get('username')
