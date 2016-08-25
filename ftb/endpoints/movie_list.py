@@ -1,6 +1,6 @@
 import logging
 
-from ftb.flexget import FlexgetRequest
+from ftb.api import FlexgetRequest
 
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.conversationhandler import ConversationHandler
