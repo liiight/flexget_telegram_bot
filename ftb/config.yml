@@ -1,0 +1,6 @@
+telegram_token:
+flexget_api:
+  base_url:
+  username:
+  password:
+  token:
