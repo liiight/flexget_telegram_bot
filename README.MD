@@ -1,5 +1,7 @@
 # Flexget Telegram Bot
 
+*Note:* This very much a WIP right now, not even versioned yet. 
+
 Manage [Flexget](https://github.com/Flexget/Flexget) via a [Telegram](https://telegram.org/) bot. Based on [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot).
 
 ## Requirements
