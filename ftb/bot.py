@@ -13,12 +13,12 @@ log = logging.getLogger(__name__)
 
 
 class FlexgetBot(object):
-    def __init__(self, args, base_path, config_file='config.yml'):
+    def __init__(self, args):
         log.debug('Initializing FlexgetBot')
         self.bot_token = args.token
-        self.config_file = config_file
+        self.config_file = args.config
         load_config(os.getcwd(), self.config_file)
-        load_handlers(extra_dirs=[os.path.join(base_path, 'handlers')])
+        load_handlers(extra_dirs=[os.path.join(os.getcwd(), 'ftb', 'handlers')])
         self.init_bot()
 
     def init_bot(self):
