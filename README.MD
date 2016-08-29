@@ -14,3 +14,12 @@ Manage [Flexget](https://github.com/Flexget/Flexget) via a [Telegram](https://te
 1. `pip install -r requirements.txt`
 1. `git clone https://github.com/liiight/flexget_telegram_bot.git`
 2. `python run.py -t <TELEGRAM_BOT_TOKEN>`
+
+## Usage
+
+- `/start` to start the bot
+- `/help` to see list of available commands
+
+## Currently supported:
+
+- Partial (and ugly) movie list support (View and add)
