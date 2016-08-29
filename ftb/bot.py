@@ -1,13 +1,17 @@
 import os
+import logging
 
 from telegram.ext.updater import Updater
 
 from ftb.config import load_config
 from ftb.handler import load_handlers, get_handler_lists
 
+log = logging.getLogger(__name__)
+
 
 class FlexgetBot(object):
     def __init__(self, args, base_path, config_file='config.yml'):
+        log.debug('Initializing FlexgetBot')
         self.bot_token = args.token
         self.config_file = config_file
         load_config(os.getcwd(), self.config_file)

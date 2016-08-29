@@ -10,43 +10,48 @@ from ftb.api import FlexgetRequest
 from ftb.event import event
 from ftb.handler import register_handlers
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 ACTION_SELECTOR, LIST_MOVIES, ADD_MOVIES, SELECT_LIST, SHOW_MOVIES, MOVIE_NAME, MOVIE_YEAR = range(7)
+
+request = FlexgetRequest()
 
 MOVIE_LISTS = [{}]
 MOVIE_ADD_DICT = {}
 
-request = FlexgetRequest()
+
+def _add_to_movie_dict(key, value):
+    log.debug('adding %s to %s for movie dict', value, key)
+    global MOVIE_ADD_DICT
+    MOVIE_ADD_DICT.setdefault(key, value)
 
 
 ############
 
 
-def get_movie_lists():
+def _get_movie_lists():
+    log.debug('fetching movie lists')
     lists = request.get('/movie_list/')
     global MOVIE_LISTS
     MOVIE_LISTS = lists['movie_lists']
 
 
-def get_movies_by_list_name(list_name):
+def _get_movies_by_list_name(list_name):
+    log.debug('getting movies for list %s', list_name)
     list_id = None
     for ml in MOVIE_LISTS:
         if list_name == ml['name']:
             list_id = ml['id']
             break
-    if not list_id:
-        raise Exception
     movies = request.get('/movie_list/' + str(list_id) + '/movies/')
+    log.debug('retrieved movies %s', movies)
     return movies['movies']
 
 
-def add_movie_to_list():
+def _add_movie_to_list():
     global MOVIE_ADD_DICT
     list_id = MOVIE_ADD_DICT.pop('list_id')
+    log.debug('adding movie data %s to list id %s', MOVIE_ADD_DICT, list_id)
     request.post('/movie_list/' + str(list_id) + '/movies/', data=MOVIE_ADD_DICT)
 
 
@@ -62,7 +67,7 @@ def main_menu(bot, update):
 
 def action_selection(bot, update):
     action = update.message.text
-    get_movie_lists()
+    _get_movie_lists()
     reply_keyboard = [[ml['name'] for ml in MOVIE_LISTS]]
     bot.sendMessage(update.message.chat_id,
                     text='Please select a movie list or /cancel',
@@ -75,7 +80,7 @@ def action_selection(bot, update):
 
 def add_movies(bot, update):
     list_name = update.message.text
-    get_movie_lists()
+    _get_movie_lists()
     list_id = None
     for ml in MOVIE_LISTS:
         if ml['name'] == list_name:
@@ -83,8 +88,7 @@ def add_movies(bot, update):
             break
     if not list_id:
         raise Exception
-    global MOVIE_ADD_DICT
-    MOVIE_ADD_DICT = {'list_id': list_id}
+    _add_to_movie_dict('list_id', list_id)
     bot.sendMessage(update.message.chat_id,
                     text='Please send the movie title or /cancel')
     return MOVIE_NAME
@@ -92,8 +96,7 @@ def add_movies(bot, update):
 
 def movie_name(bot, update):
     movie_name = update.message.text
-    global MOVIE_ADD_DICT
-    MOVIE_ADD_DICT['movie_name'] = movie_name
+    _add_to_movie_dict('movie_name', movie_name)
     bot.sendMessage(update.message.chat_id,
                     text='Please select the movie year or /skip')
     return MOVIE_YEAR
@@ -101,22 +104,21 @@ def movie_name(bot, update):
 
 def movie_year(bot, update):
     movie_year = update.message.text
-    global MOVIE_ADD_DICT
-    MOVIE_ADD_DICT['movie_year'] = int(movie_year)
-    add_movie_to_list()
+    _add_to_movie_dict('movie_year', int(movie_year))
+    _add_movie_to_list()
     bot.sendMessage(update.message.chat_id, text='Movie {} successfully added'.format(MOVIE_ADD_DICT['movie_name']))
     return ConversationHandler.END
 
 
 def skip_movie_year(bot, update):
-    add_movie_to_list()
+    _add_movie_to_list()
     bot.sendMessage(update.message.chat_id, text='Movie {} successfully added'.format(MOVIE_ADD_DICT['movie_name']))
     return ConversationHandler.END
 
 
 def show_movies(bot, update):
     list_name = update.message.text
-    movies = get_movies_by_list_name(list_name)
+    movies = _get_movies_by_list_name(list_name)
     reply = 'Movies:\n' if movies else 'No movies in list'
     for movie in movies:
         reply += '{}\n'.format(movie['title'])
@@ -127,14 +129,12 @@ def show_movies(bot, update):
 
 def cancel(bot, update):
     user = update.message.from_user
-    logger.info("User %s canceled the conversation." % user.first_name)
+    log.info("User %s canceled the conversation." % user.first_name)
     bot.sendMessage(update.message.chat_id,
                     text='Operation canceled')
 
     return ConversationHandler.END
 
-
-help_handler = CommandHandler('help', help)
 
 show_movies_cnv_handler = RegexHandler('\w', show_movies)
 
@@ -149,7 +149,7 @@ add_movie_cnv_handler = ConversationHandler(
 )
 
 movie_list_handler = ConversationHandler(
-    entry_points=[CommandHandler('movieList', main_menu)],
+    entry_points=[CommandHandler('movie_list', main_menu)],
     states={
         ACTION_SELECTOR: [MessageHandler([Filters.text], action_selection)],
         LIST_MOVIES: [show_movies_cnv_handler],
@@ -161,4 +161,4 @@ movie_list_handler = ConversationHandler(
 
 @event('handler.register')
 def register():
-    register_handlers([movie_list_handler], help_message='/movieList - Manage movie list')
+    register_handlers([movie_list_handler], help_message='/movie_list - Manage movie list')
