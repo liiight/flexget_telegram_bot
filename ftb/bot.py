@@ -1,37 +1,18 @@
-import io
 import os
 
-import yaml
 from telegram.ext.updater import Updater
 
-
-class MissingData(Exception): pass
-
-
-config = {}
+from ftb.config import load_config
+from ftb.handlers import load_endpoints
 
 
 class FlexgetBot(object):
-    def __init__(self, args, config_file='config.yml'):
+    def __init__(self, args, base_path, config_file='config.yml'):
         self.bot_token = args.token
         self.config_file = config_file
-        global config
-        config = self.load_config()
+        load_config(os.getcwd(), self.config_file)
+        load_endpoints(extra_dirs=[os.path.join(base_path, 'endpoints')])
         self.init_bot()
-
-    def load_config(self):
-        config_file = os.path.join(os.getcwd(), self.config_file)
-        with io.open(config_file) as file:
-            config = yaml.load(file)
-        self.validate_config(config)
-        return config
-
-    @staticmethod
-    def validate_config(config):
-        if not config.get('base_url'):
-            raise MissingData('Missing base_url value in config file')
-        if not (config.get('username') and config.get('password')) and not config.get('token'):
-            raise MissingData('Missing credentials in config file')
 
     def init_bot(self):
         from ftb.handlers import HANDLERS, error
@@ -43,7 +24,3 @@ class FlexgetBot(object):
         dispatcher.add_error_handler(error)
         updater.start_polling()
         updater.idle()
-
-
-def get_config():
-    return config

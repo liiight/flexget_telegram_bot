@@ -1,14 +1,15 @@
 import requests
-from ftb.bot import get_config
+from ftb.config import config
 
 
 class FlexgetRequest(object):
-    config = get_config()
     FLEXGET_BASE_URL = config.get('base_url')
-    FLEXGET_TOKEN = config.get('token') or get_token(FLEXGET_BASE_URL, config.get('username'), config.get('password'))
+    FLEXGET_TOKEN = config.get('token')
 
     def _request(self, method, endpoint, **params):
         url = FlexgetRequest.FLEXGET_BASE_URL + endpoint
+        if not FlexgetRequest.FLEXGET_TOKEN:
+            FlexgetRequest.FLEXGET_TOKEN = get_token(config.get('username'), config.get('password'))
         headers = {'Authorization': 'Token {}'.format(FlexgetRequest.FLEXGET_TOKEN)}
         data = params.pop('data', None)
 
@@ -31,12 +32,14 @@ class FlexgetRequest(object):
         return self._request('delete', endpoint, **params)
 
     @classmethod
-    def verify_connection(cls, token, base_url):
+    def verify_connection(cls):
         response = cls().get('/server/version/')
         return response.get('flexget_version') is not None
 
 
-def get_token(base_url, username, password):
+def get_token(username, password, base_url=None):
+    if not base_url:
+        base_url = config.get('base_url')
     login_url = base_url + '/auth/login/?remember=true'
     data = {'username': username, 'password': password}
     session = requests.session()

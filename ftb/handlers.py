@@ -1,46 +1,21 @@
 import logging
+import os
 
-from requests.exceptions import HTTPError
+from path import Path
 from telegram.ext.commandhandler import CommandHandler
 
-from ftb.bot import get_config
-from ftb.endpoints.movie_list import movie_list_handler
-from ftb.api import FlexgetRequest, get_token
+from ftb import endpoints as endpoint_pkg
+from ftb.event import fire_event, remove_event_handlers
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 HANDLERS = []
 ERROR_HANDLERS = []
 HELP_MESSAGE = ''
 
 
-def start(bot, update):
-    config = get_config()
-    message = 'Welcome to Flexget Telegram Bot!\n'
-    token = config.get('token')
-    username = config.get('username')
-    password = config.get('password')
-    base_url = config.get('base_url')
-    try:
-        if token:
-            valid = FlexgetRequest.verify_connection(token, base_url)
-        else:
-            token = get_token(base_url, username, password)
-            valid = token is not None
-    except HTTPError:
-        valid = False
-    if not valid:
-        message += 'Could not verify credentials. Please check config file'
-    else:
-        message += 'Press /help to see available actions'
-    bot.sendMessage(update.message.chat_id, text=message)
-
-
-start_handler = CommandHandler('start', start)
-
-
 def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
+    log.warn('Update "%s" caused error "%s"' % (update, error))
 
 
 def help(bot, update):
@@ -50,17 +25,55 @@ def help(bot, update):
 help_handler = CommandHandler('help', help)
 
 
-def register_handlers(handlers, error_handler=None, help_message=None):
+def _strip_trailing_sep(path):
+    return path.rstrip("\\/")
+
+
+def _load_endpoints_from_dirs(dirs):
+    """
+    :param list dirs: Directories from where plugins are loaded from
+    """
+
+    log.debug('Trying to load endpoints from: %s' % dirs)
+    dirs = [Path(d) for d in dirs if os.path.isdir(d)]
+    # add all dirs to plugins_pkg load path so that imports work properly from any of the plugin dirs
+    endpoint_pkg.__path__ = list(map(_strip_trailing_sep, dirs))
+    for endpoint_dir in dirs:
+        for endpoint_path in endpoint_dir.walkfiles('*.py'):
+            if endpoint_path.name == '__init__.py':
+                continue
+            # Split the relative path from the plugins dir to current file's parent dir to find subpackage names
+            endpoint_subpackages = [_f for _f in endpoint_path.relpath(endpoint_dir).parent.splitall() if _f]
+            module_name = '.'.join([endpoint_pkg.__name__] + endpoint_subpackages + [endpoint_path.namebase])
+            try:
+                __import__(module_name)
+            except Exception as e:
+                log.error('Cannot load endpoint')
+                continue
+
+
+def load_endpoints(extra_dirs=None):
+    """
+    Load plugins from the standard plugin paths.
+    :param list extra_dirs: Extra directories from where plugins are loaded.
+    """
+    if not extra_dirs:
+        extra_dirs = []
+
+    # Import all the plugins
+    _load_endpoints_from_dirs(extra_dirs)
+    # Register them
+    fire_event('endpoint.register')
+    # Plugins should only be registered once, remove their handlers after
+    remove_event_handlers('endpoint.register')
+
+
+def register_handlers(handlers, help_message=None):
     for handler in handlers:
         HANDLERS.append(handler)
-    if error_handler:
-        ERROR_HANDLERS.append(error_handler)
     if help_message:
         global HELP_MESSAGE
         HELP_MESSAGE += help_message
 
 
-# TODO dynamically register handlers via hooks
 HANDLERS.append(help_handler)
-HANDLERS.append(start_handler)
-register_handlers([movie_list_handler], help_message='/movieList - Manage movie list')

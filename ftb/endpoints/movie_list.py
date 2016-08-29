@@ -1,12 +1,14 @@
 import logging
 
-from ftb.api import FlexgetRequest
-
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.conversationhandler import ConversationHandler
 from telegram.ext.messagehandler import MessageHandler, Filters
 from telegram.ext.regexhandler import RegexHandler
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
+
+from ftb.api import FlexgetRequest
+from ftb.event import event
+from ftb.handlers import register_handlers
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -155,3 +157,8 @@ movie_list_handler = ConversationHandler(
     },
     fallbacks=[CommandHandler('cancel', cancel)]
 )
+
+
+@event('endpoint.register')
+def register():
+    register_handlers([movie_list_handler], help_message='/movieList - Manage movie list')
