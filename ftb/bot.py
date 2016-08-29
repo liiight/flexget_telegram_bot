@@ -3,7 +3,7 @@ import os
 from telegram.ext.updater import Updater
 
 from ftb.config import load_config
-from ftb.handlers import load_endpoints, get_handler_lists
+from ftb.handler import load_handlers, get_handler_lists
 
 
 class FlexgetBot(object):
@@ -11,7 +11,7 @@ class FlexgetBot(object):
         self.bot_token = args.token
         self.config_file = config_file
         load_config(os.getcwd(), self.config_file)
-        load_endpoints(extra_dirs=[os.path.join(base_path, 'endpoints')])
+        load_handlers(extra_dirs=[os.path.join(base_path, 'handlers')])
         self.init_bot()
 
     def init_bot(self):

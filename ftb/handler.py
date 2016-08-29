@@ -4,7 +4,7 @@ import os
 from path import Path
 from telegram.ext.commandhandler import CommandHandler
 
-from ftb import endpoints as endpoint_pkg
+from ftb import handlers as handlers_pkg
 from ftb.event import fire_event, remove_event_handlers
 
 log = logging.getLogger(__name__)
@@ -18,30 +18,30 @@ def _strip_trailing_sep(path):
     return path.rstrip("\\/")
 
 
-def _load_endpoints_from_dirs(dirs):
+def _load_handlers_from_dirs(dirs):
     """
     :param list dirs: Directories from where plugins are loaded from
     """
 
-    log.debug('Trying to load endpoints from: %s' % dirs)
+    log.debug('Trying to load handlers from: %s' % dirs)
     dirs = [Path(d) for d in dirs if os.path.isdir(d)]
     # add all dirs to plugins_pkg load path so that imports work properly from any of the plugin dirs
-    endpoint_pkg.__path__ = list(map(_strip_trailing_sep, dirs))
-    for endpoint_dir in dirs:
-        for endpoint_path in endpoint_dir.walkfiles('*.py'):
-            if endpoint_path.name == '__init__.py':
+    handlers_pkg.__path__ = list(map(_strip_trailing_sep, dirs))
+    for handler_dir in dirs:
+        for handler_path in handler_dir.walkfiles('*.py'):
+            if handler_path.name == '__init__.py':
                 continue
             # Split the relative path from the plugins dir to current file's parent dir to find subpackage names
-            endpoint_subpackages = [_f for _f in endpoint_path.relpath(endpoint_dir).parent.splitall() if _f]
-            module_name = '.'.join([endpoint_pkg.__name__] + endpoint_subpackages + [endpoint_path.namebase])
+            handler_subpackages = [_f for _f in handler_path.relpath(handler_dir).parent.splitall() if _f]
+            module_name = '.'.join([handlers_pkg.__name__] + handler_subpackages + [handler_path.namebase])
             try:
                 __import__(module_name)
             except Exception as e:
-                log.error('Cannot load endpoint')
+                log.error('Cannot load handler: %s', e)
                 continue
 
 
-def load_endpoints(extra_dirs=None):
+def load_handlers(extra_dirs=None):
     """
     Load plugins from the standard plugin paths.
     :param list extra_dirs: Extra directories from where plugins are loaded.
@@ -50,11 +50,11 @@ def load_endpoints(extra_dirs=None):
         extra_dirs = []
 
     # Import all the plugins
-    _load_endpoints_from_dirs(extra_dirs)
+    _load_handlers_from_dirs(extra_dirs)
     # Register them
-    fire_event('endpoint.register')
+    fire_event('handler.register')
     # Plugins should only be registered once, remove their handlers after
-    remove_event_handlers('endpoint.register')
+    remove_event_handlers('handler.register')
 
 
 def register_handlers(handlers, help_message=None, error=False):

@@ -8,7 +8,7 @@ from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 
 from ftb.api import FlexgetRequest
 from ftb.event import event
-from ftb.handlers import register_handlers
+from ftb.handler import register_handlers
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -159,6 +159,6 @@ movie_list_handler = ConversationHandler(
 )
 
 
-@event('endpoint.register')
+@event('handler.register')
 def register():
     register_handlers([movie_list_handler], help_message='/movieList - Manage movie list')

@@ -4,7 +4,7 @@ from telegram.ext.commandhandler import CommandHandler
 from ftb.api import FlexgetRequest, get_token
 from ftb.config import config
 from ftb.event import event
-from ftb.handlers import register_handlers
+from ftb.handler import register_handlers
 
 
 def start(bot, update):
@@ -31,6 +31,6 @@ def start(bot, update):
 start_handler = CommandHandler('start', start)
 
 
-@event('endpoint.register')
+@event('handler.register')
 def register():
     register_handlers([start_handler])
