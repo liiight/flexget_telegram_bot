@@ -165,5 +165,5 @@ movie_list_handler = ConversationHandler(
 
 
 @event('handler.register')
-def register():
-    register_handlers([movie_list_handler], help_message='/movie_list - Manage movie list')
+def register_handler():
+    register_handlers(movie_list_handler, help_message='/movie_list - Manage movie list')

@@ -1,18 +1,18 @@
 import requests
 import logging
-from ftb.config import config
+from ftb.config import parsed_config
 
 log = logging.getLogger('flexget_api')
 
 
 class FlexgetRequest(object):
-    FLEXGET_BASE_URL = config.get('base_url')
-    FLEXGET_TOKEN = config.get('token')
+    FLEXGET_BASE_URL = parsed_config.get('base_url')
+    FLEXGET_TOKEN = parsed_config.get('token')
 
     def _request(self, method, endpoint, **kwargs):
         url = FlexgetRequest.FLEXGET_BASE_URL + endpoint
         if not FlexgetRequest.FLEXGET_TOKEN:
-            FlexgetRequest.FLEXGET_TOKEN = get_token(config.get('username'), config.get('password'))
+            FlexgetRequest.FLEXGET_TOKEN = get_token(parsed_config.get('username'), parsed_config.get('password'))
         data = kwargs.pop('data', None)
         params = kwargs.pop('params', None)
         headers = kwargs.pop('headers', {})
@@ -45,7 +45,7 @@ class FlexgetRequest(object):
 
 def get_token(username, password, base_url=None):
     if not base_url:
-        base_url = config.get('base_url')
+        base_url = parsed_config.get('base_url')
     login_url = base_url + '/auth/login/?remember=true'
     data = {'username': username, 'password': password}
     session = requests.session()

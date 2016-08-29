@@ -57,13 +57,12 @@ def load_handlers(extra_dirs=None):
     remove_event_handlers('handler.register')
 
 
-def register_handlers(handlers, help_message=None, error=False):
+def register_handlers(handler, help_message=None, error=False):
     if error:
         destination = ERROR_HANDLERS
     else:
         destination = HANDLERS
-    for handler in handlers:
-        destination.append(handler)
+    destination.append(handler)
     if help_message:
         global HELP_MESSAGE
         HELP_MESSAGE += help_message
@@ -84,6 +83,6 @@ def help(bot, update):
 help_handler = CommandHandler('help', help)
 
 # Register help handler
-register_handlers([help_handler])
+register_handlers(help_handler)
 # Register error handler
-register_handlers([error], error=True)
+register_handlers(error, error=True)
