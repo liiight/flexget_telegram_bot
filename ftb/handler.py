@@ -7,7 +7,7 @@ from telegram.ext.commandhandler import CommandHandler
 from ftb import handlers as handlers_pkg
 from ftb.event import fire_event, remove_event_handlers
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('handler')
 
 HANDLERS = []
 ERROR_HANDLERS = []
@@ -36,8 +36,9 @@ def _load_handlers_from_dirs(dirs):
             module_name = '.'.join([handlers_pkg.__name__] + handler_subpackages + [handler_path.namebase])
             try:
                 __import__(module_name)
+                log.debug('successfully imported %s', module_name)
             except Exception as e:
-                log.error('Cannot load handler: %s', e)
+                log.error('Cannot load handler %s: %s', module_name, e)
                 continue
 
 

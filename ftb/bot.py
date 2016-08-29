@@ -28,7 +28,6 @@ class FlexgetBot(object):
         updater = Updater(token=self.bot_token)
         dispatcher = updater.dispatcher
 
-
         handlers, error_handlers = get_handler_lists()
         for handler in handlers:
             log.debug('registering handler %s', repr(handler))

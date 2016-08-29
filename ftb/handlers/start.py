@@ -2,22 +2,18 @@ from requests.exceptions import HTTPError
 from telegram.ext.commandhandler import CommandHandler
 
 from ftb.api import FlexgetRequest, get_token
-from ftb.config import parsed_config
+from ftb.config import CONFIG
 from ftb.event import event
 from ftb.handler import register_handlers
 
 
 def start(bot, update):
     message = 'Welcome to Flexget Telegram Bot!\n'
-    token = parsed_config.get('token')
-    username = parsed_config.get('username')
-    password = parsed_config.get('password')
-    base_url = parsed_config.get('base_url')
     try:
-        if token:
+        if CONFIG.flexget_token:
             valid = FlexgetRequest.verify_connection()
         else:
-            token = get_token(username, password)
+            token = get_token(CONFIG.username, CONFIG.password)
             valid = token is not None
     except HTTPError:
         valid = False
