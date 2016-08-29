@@ -14,17 +14,6 @@ ERROR_HANDLERS = []
 HELP_MESSAGE = ''
 
 
-def error(bot, update, error):
-    log.warn('Update "%s" caused error "%s"' % (update, error))
-
-
-def help(bot, update):
-    bot.sendMessage(update.message.chat_id, text=HELP_MESSAGE)
-
-
-help_handler = CommandHandler('help', help)
-
-
 def _strip_trailing_sep(path):
     return path.rstrip("\\/")
 
@@ -83,6 +72,16 @@ def register_handlers(handlers, help_message=None, error=False):
 def get_handler_lists():
     return HANDLERS, ERROR_HANDLERS
 
+
+def error(bot, update, error):
+    log.warn('Update "%s" caused error "%s"' % (update, error))
+
+
+def help(bot, update):
+    bot.sendMessage(update.message.chat_id, text=HELP_MESSAGE)
+
+
+help_handler = CommandHandler('help', help)
 
 # Register help handler
 register_handlers([help_handler])
