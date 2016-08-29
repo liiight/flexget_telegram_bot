@@ -22,4 +22,4 @@ Manage [Flexget](https://github.com/Flexget/Flexget) via a [Telegram](https://te
 
 ## Currently supported:
 
-- Partial (and ugly) movie list support (View and add)
+- Movie list support (View and add)

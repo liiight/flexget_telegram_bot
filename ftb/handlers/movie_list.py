@@ -5,6 +5,7 @@ from telegram.ext.conversationhandler import ConversationHandler
 from telegram.ext.messagehandler import MessageHandler, Filters
 from telegram.ext.regexhandler import RegexHandler
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
+from telegram.parsemode import ParseMode
 
 from ftb.api import FlexgetRequest
 from ftb.event import event
@@ -120,10 +121,13 @@ def skip_movie_year(bot, update):
 def show_movies(bot, update):
     list_name = update.message.text
     movies = _get_movies_by_list_name(list_name)
-    reply = 'Movies:\n' if movies else 'No movies in list'
+    reply = 'Movies:\n\n' if movies else 'No movies in list'
     for movie in movies:
-        reply += '{}\n'.format(movie['title'])
-    bot.sendMessage(update.message.chat_id, text=reply)
+        reply += '*{}*'.format(movie['title'])
+        if movie['year']:
+            reply += ': ({})'.format(movie['year'])
+        reply += '\n'
+    bot.sendMessage(update.message.chat_id, text=reply, parse_mode=ParseMode.MARKDOWN)
 
     return ConversationHandler.END
 
