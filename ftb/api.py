@@ -5,7 +5,6 @@ from ftb.config import config
 log = logging.getLogger('flexget_api')
 
 
-
 class FlexgetRequest(object):
     FLEXGET_BASE_URL = config.get('base_url')
     FLEXGET_TOKEN = config.get('token')
@@ -14,9 +13,10 @@ class FlexgetRequest(object):
         url = FlexgetRequest.FLEXGET_BASE_URL + endpoint
         if not FlexgetRequest.FLEXGET_TOKEN:
             FlexgetRequest.FLEXGET_TOKEN = get_token(config.get('username'), config.get('password'))
-        headers = {'Authorization': 'Token {}'.format(FlexgetRequest.FLEXGET_TOKEN)}
         data = kwargs.pop('data', None)
         params = kwargs.pop('params', None)
+        headers = kwargs.pop('headers', {})
+        headers.setdefault('Authorization', 'Token {}'.format(FlexgetRequest.FLEXGET_TOKEN))
 
         log.debug('received request for %s', url)
         result = requests.request(method, url, params=params, headers=headers, json=data)
