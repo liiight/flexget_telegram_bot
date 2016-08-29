@@ -3,7 +3,7 @@ import os
 from telegram.ext.updater import Updater
 
 from ftb.config import load_config
-from ftb.handlers import load_endpoints
+from ftb.handlers import load_endpoints, get_handler_lists
 
 
 class FlexgetBot(object):
@@ -15,12 +15,13 @@ class FlexgetBot(object):
         self.init_bot()
 
     def init_bot(self):
-        from ftb.handlers import HANDLERS, error
         updater = Updater(token=self.bot_token)
         dispatcher = updater.dispatcher
 
-        for handler in HANDLERS:
+        handlers, error_handlers = get_handler_lists()
+        for handler in handlers:
             dispatcher.add_handler(handler)
-        dispatcher.add_error_handler(error)
+        for error_handler in error_handlers:
+            dispatcher.add_error_handler(error_handler)
         updater.start_polling()
         updater.idle()

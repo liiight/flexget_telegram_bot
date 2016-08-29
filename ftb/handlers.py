@@ -68,12 +68,23 @@ def load_endpoints(extra_dirs=None):
     remove_event_handlers('endpoint.register')
 
 
-def register_handlers(handlers, help_message=None):
+def register_handlers(handlers, help_message=None, error=False):
+    if error:
+        destination = ERROR_HANDLERS
+    else:
+        destination = HANDLERS
     for handler in handlers:
-        HANDLERS.append(handler)
+        destination.append(handler)
     if help_message:
         global HELP_MESSAGE
         HELP_MESSAGE += help_message
 
 
-HANDLERS.append(help_handler)
+def get_handler_lists():
+    return HANDLERS, ERROR_HANDLERS
+
+
+# Register help handler
+register_handlers([help_handler])
+# Register error handler
+register_handlers([error], error=True)
