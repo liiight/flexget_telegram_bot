@@ -1,18 +1,24 @@
 import requests
+import logging
 from ftb.config import config
+
+log = logging.getLogger('flexget_api')
+
 
 
 class FlexgetRequest(object):
     FLEXGET_BASE_URL = config.get('base_url')
     FLEXGET_TOKEN = config.get('token')
 
-    def _request(self, method, endpoint, **params):
+    def _request(self, method, endpoint, **kwargs):
         url = FlexgetRequest.FLEXGET_BASE_URL + endpoint
         if not FlexgetRequest.FLEXGET_TOKEN:
             FlexgetRequest.FLEXGET_TOKEN = get_token(config.get('username'), config.get('password'))
         headers = {'Authorization': 'Token {}'.format(FlexgetRequest.FLEXGET_TOKEN)}
-        data = params.pop('data', None)
+        data = kwargs.pop('data', None)
+        params = kwargs.pop('params', None)
 
+        log.debug('received request for %s', url)
         result = requests.request(method, url, params=params, headers=headers, json=data)
         result.raise_for_status()
         result = result.json()

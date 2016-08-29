@@ -10,7 +10,7 @@ from ftb.api import FlexgetRequest
 from ftb.event import event
 from ftb.handler import register_handlers
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('movie_list')
 
 ACTION_SELECTOR, LIST_MOVIES, ADD_MOVIES, SELECT_LIST, SHOW_MOVIES, MOVIE_NAME, MOVIE_YEAR = range(7)
 
@@ -43,7 +43,8 @@ def _get_movies_by_list_name(list_name):
         if list_name == ml['name']:
             list_id = ml['id']
             break
-    movies = request.get('/movie_list/' + str(list_id) + '/movies/')
+    params = {'page_size': 100, 'sort_by': 'added'}
+    movies = request.get('/movie_list/' + str(list_id) + '/movies/', params=params)
     log.debug('retrieved movies %s', movies)
     return movies['movies']
 

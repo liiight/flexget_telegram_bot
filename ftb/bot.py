@@ -6,6 +6,9 @@ from telegram.ext.updater import Updater
 from ftb.config import load_config
 from ftb.handler import load_handlers, get_handler_lists
 
+logging.basicConfig(filename='ftb.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
+
 log = logging.getLogger(__name__)
 
 
